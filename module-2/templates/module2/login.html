@@ -1,0 +1,56 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Вход</title>
+  <link rel="stylesheet" href="{% static 'module2/styles.css' %}">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="{% url 'module2:login' %}">
+      <img src="{% static 'module2/assets/boat.png' %}" alt="">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a class="active" href="{% url 'module2:login' %}">Вход</a>
+      <a href="{% url 'module2:register' %}">Регистрация</a>
+      <a href="{% url 'module2:admin' %}">Админ</a>
+    </nav>
+  </header>
+
+  <main class="split-screen">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Вождение речного транспорта</p>
+        <h1>Водить.РФ</h1>
+        <p>Катера, круизные лайнеры и яхты с очным обучением и понятным статусом заявки.</p>
+      </div>
+    </section>
+
+    <section class="auth-card" aria-labelledby="login-title">
+      <p class="eyebrow">Личный кабинет</p>
+      <h2 id="login-title">Вход</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <label>
+          Логин
+          {{ form.login }}
+          <span class="field-error">{{ form.login.errors|striptags }}</span>
+        </label>
+        <label>
+          Пароль
+          {{ form.password }}
+          <span class="field-error">{{ form.password.errors|striptags }}</span>
+        </label>
+        <p class="form-message">{{ form.non_field_errors|striptags }}</p>
+        <button class="button primary" type="submit">Войти</button>
+      </form>
+      <p class="switch">Еще не зарегистрированы? <a href="{% url 'module2:register' %}">Регистрация</a></p>
+    </section>
+  </main>
+
+  <script src="{% static 'module2/app.js' %}"></script>
+</body>
+</html>

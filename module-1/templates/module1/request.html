@@ -1,0 +1,53 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Заявка на обучение</title>
+  <link rel="stylesheet" href="{% static 'module1/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{% url 'module1:cabinet' %}">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="top-nav" aria-label="Основная навигация">
+      <a href="{% url 'module1:cabinet' %}">Кабинет</a>
+      <a href="{% url 'module1:request' %}" class="active">Новая заявка</a>
+      <a href="{% url 'module1:logout' %}">Выйти</a>
+    </nav>
+  </header>
+
+  <main class="page-shell narrow">
+    <section class="form-panel wide" aria-labelledby="request-title">
+      <p class="eyebrow">Курс обучения</p>
+      <h1 id="request-title">Оформление заявки</h1>
+      <form method="post" class="grid-form" novalidate>
+        {% csrf_token %}
+        <label>
+          Вид транспорта
+          {{ form.transport }}
+          <span class="field-error">{{ form.transport.errors|striptags }}</span>
+        </label>
+        <label>
+          Дата начала обучения
+          {{ form.start_date }}
+          <span class="field-error">{{ form.start_date.errors|striptags }}</span>
+        </label>
+        <label>
+          Способ оплаты
+          {{ form.payment_method }}
+          <span class="field-error">{{ form.payment_method.errors|striptags }}</span>
+        </label>
+        <label class="span-2">
+          Комментарий
+          {{ form.comment }}
+        </label>
+        <p class="form-message">{{ form.non_field_errors|striptags }}</p>
+        <button class="button primary" type="submit">Отправить на согласование</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

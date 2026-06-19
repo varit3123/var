@@ -1,0 +1,139 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Администратор</title>
+  <link rel="stylesheet" href="{% static 'module2/styles.css' %}">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="{% url 'module2:login' %}">
+      <img src="{% static 'module2/assets/boat.png' %}" alt="">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a href="{% url 'module2:login' %}">Вход</a>
+      <a href="{% url 'module2:register' %}">Регистрация</a>
+      <a class="active" href="{% url 'module2:admin' %}">Админ</a>
+    </nav>
+  </header>
+
+  <main class="page admin-page">
+    {% for message in messages %}
+      <div class="toast show success">{{ message }}</div>
+    {% endfor %}
+    {% if not request.session.module2_admin %}
+      <section class="auth-card centered" aria-labelledby="admin-title">
+        <p class="eyebrow">Администрирование</p>
+        <h1 id="admin-title">Вход</h1>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="action" value="login">
+          <label>
+            Логин
+            {{ form.login }}
+          </label>
+          <label>
+            Пароль
+            {{ form.password }}
+          </label>
+          <p class="form-message">{{ form.non_field_errors|striptags }}</p>
+          <button class="button primary" type="submit">Открыть</button>
+        </form>
+      </section>
+    {% else %}
+      <section>
+        <div class="profile-head">
+          <div>
+            <p class="eyebrow">Панель администратора</p>
+            <h1>Заявки</h1>
+          </div>
+        </div>
+
+        <form class="tools" method="get">
+          <label>
+            Поиск
+            <input name="search" value="{{ request.GET.search }}" placeholder="ФИО, логин или телефон">
+          </label>
+          <label>
+            Статус
+            <select name="status">
+              <option value="">Все статусы</option>
+              {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            Транспорт
+            <select name="transport">
+              <option value="">Все виды</option>
+              {% for value, label in transport_choices %}
+                <option value="{{ value }}" {% if request.GET.transport == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            Сортировка
+            <select name="sort">
+              <option value="created_desc" {% if request.GET.sort == 'created_desc' or not request.GET.sort %}selected{% endif %}>Сначала новые</option>
+              <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Дата обучения</option>
+              <option value="name_asc" {% if request.GET.sort == 'name_asc' %}selected{% endif %}>ФИО А-Я</option>
+            </select>
+          </label>
+          <button class="button primary full" type="submit">Применить</button>
+        </form>
+
+        <div class="admin-list">
+          {% for application in page_obj %}
+            <article class="admin-card">
+              <header>
+                <div>
+                  <h3>{{ application.user.profile.full_name }}</h3>
+                  <p class="muted">{{ application.user.username }}<br>{{ application.user.profile.phone }}<br>{{ application.user.email }}</p>
+                </div>
+                <span class="status {% if application.status == 'Идет обучение' %}progress{% elif application.status == 'Обучение завершено' %}done{% endif %}">{{ application.status }}</span>
+              </header>
+              <div>
+                <div class="meta-grid">
+                  <div><span>Транспорт</span>{{ application.transport }}</div>
+                  <div><span>Старт</span>{{ application.start_date|date:"d.m.Y" }}</div>
+                  <div><span>Оплата</span>{{ application.payment_method }}</div>
+                </div>
+                <p class="muted">{{ application.comment|default:"Без комментария" }}</p>
+                {% if application.review_text %}<p><strong>Отзыв:</strong> {{ application.review_text }}</p>{% endif %}
+              </div>
+              <form method="post" class="status-form">
+                {% csrf_token %}
+                <input type="hidden" name="application_id" value="{{ application.id }}">
+                <label>
+                  Статус
+                  <select name="status" data-status-select>
+                    <option {% if application.status == 'Новая' %}selected{% endif %}>Новая</option>
+                    <option {% if application.status == 'Идет обучение' %}selected{% endif %}>Идет обучение</option>
+                    <option {% if application.status == 'Обучение завершено' %}selected{% endif %}>Обучение завершено</option>
+                  </select>
+                </label>
+              </form>
+            </article>
+          {% empty %}
+            <div class="empty">По выбранным параметрам заявок нет.</div>
+          {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+          <div class="pagination">
+            {% for page_number in page_obj.paginator.page_range %}
+              <a class="{% if page_number == page_obj.number %}active{% endif %}" href="?search={{ request.GET.search }}&status={{ request.GET.status }}&transport={{ request.GET.transport }}&sort={{ request.GET.sort }}&page={{ page_number }}">{{ page_number }}</a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </section>
+    {% endif %}
+  </main>
+
+  <script src="{% static 'module2/app.js' %}"></script>
+</body>
+</html>

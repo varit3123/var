@@ -1,0 +1,97 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Панель администратора</title>
+  <link rel="stylesheet" href="{% static 'module1/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{% url 'module1:login' %}">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="top-nav" aria-label="Основная навигация">
+      <a href="{% url 'module1:login' %}">Вход</a>
+      <a href="{% url 'module1:register' %}">Регистрация</a>
+      <a href="{% url 'module1:admin' %}" class="active">Администратор</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    {% if not request.session.module1_admin %}
+      <section class="form-panel admin-login" aria-labelledby="admin-login-title">
+        <p class="eyebrow">Защищенный доступ</p>
+        <h1 id="admin-login-title">Вход администратора</h1>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="action" value="login">
+          <label>
+            Логин
+            {{ form.login }}
+          </label>
+          <label>
+            Пароль
+            {{ form.password }}
+          </label>
+          <p class="form-message">{{ form.non_field_errors|striptags }}</p>
+          <button class="button primary" type="submit">Открыть панель</button>
+        </form>
+      </section>
+    {% else %}
+      <section>
+        {% for message in messages %}
+          <p class="form-message success">{{ message }}</p>
+        {% endfor %}
+        <div class="dashboard-head">
+          <div>
+            <p class="eyebrow">Панель администратора</p>
+            <h1>Заявки пользователей</h1>
+            <p class="muted">Администратор может просматривать все заявки и менять их статус.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Пользователь</th>
+                <th>Контакты</th>
+                <th>Транспорт</th>
+                <th>Дата старта</th>
+                <th>Оплата</th>
+                <th>Статус</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for application in applications %}
+                <tr>
+                  <td><strong>{{ application.user.profile.full_name }}</strong><br>{{ application.user.username }}</td>
+                  <td>{{ application.user.profile.phone }}<br>{{ application.user.email }}</td>
+                  <td>{{ application.transport }}<br><span class="muted">{{ application.comment }}</span></td>
+                  <td>{{ application.start_date|date:"d.m.Y" }}</td>
+                  <td>{{ application.payment_method }}</td>
+                  <td>
+                    <form method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="application_id" value="{{ application.id }}">
+                      <select name="status">
+                        <option {% if application.status == 'Новая' %}selected{% endif %}>Новая</option>
+                        <option {% if application.status == 'Идет обучение' %}selected{% endif %}>Идет обучение</option>
+                        <option {% if application.status == 'Обучение завершено' %}selected{% endif %}>Обучение завершено</option>
+                      </select>
+                      <button class="button ghost" type="submit">Сохранить</button>
+                    </form>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="6">Заявок пока нет.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% endif %}
+  </main>
+</body>
+</html>

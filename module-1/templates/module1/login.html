@@ -1,0 +1,45 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Вход</title>
+  <link rel="stylesheet" href="{% static 'module1/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{% url 'module1:login' %}">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="top-nav" aria-label="Основная навигация">
+      <a href="{% url 'module1:login' %}" class="active">Вход</a>
+      <a href="{% url 'module1:register' %}">Регистрация</a>
+      <a href="{% url 'module1:admin' %}">Администратор</a>
+    </nav>
+  </header>
+
+  <main class="auth-layout">
+    <section class="form-panel" aria-labelledby="login-title">
+      <h2 id="login-title">Вход в систему</h2>
+      <p class="muted">Введите логин и пароль зарегистрированного пользователя.</p>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <label>
+          Логин
+          {{ form.login }}
+          <span class="field-error">{{ form.login.errors|striptags }}</span>
+        </label>
+        <label>
+          Пароль
+          {{ form.password }}
+          <span class="field-error">{{ form.password.errors|striptags }}</span>
+        </label>
+        <p class="form-message">{{ form.non_field_errors|striptags }}</p>
+        <button class="button primary" type="submit">Войти</button>
+      </form>
+      <p class="switch-link">Еще не зарегистрированы? <a href="{% url 'module1:register' %}">Регистрация</a></p>
+    </section>
+  </main>
+</body>
+</html>

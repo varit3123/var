@@ -1,0 +1,92 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Личный кабинет</title>
+  <link rel="stylesheet" href="{% static 'module2/styles.css' %}">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="{% url 'module2:cabinet' %}">
+      <img src="{% static 'module2/assets/boat.png' %}" alt="">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a class="active" href="{% url 'module2:cabinet' %}">Кабинет</a>
+      <a href="{% url 'module2:request' %}">Заявка</a>
+      <a href="{% url 'module2:logout' %}">Выйти</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    {% for message in messages %}
+      <div class="toast show success">{{ message }}</div>
+    {% endfor %}
+    <section class="profile-head">
+      <div>
+        <p class="eyebrow">Личный кабинет</p>
+        <h1>{{ request.user.profile.full_name }}</h1>
+      </div>
+      <a class="button primary compact" href="{% url 'module2:request' %}">Новая заявка</a>
+    </section>
+
+    <section class="slider" aria-label="Фотографии речного транспорта">
+      <div class="slider-track" id="sliderTrack">
+        <img src="{% static 'module2/images/image.jpeg' %}" alt="Речной транспорт на воде">
+        <img src="{% static 'module2/images/image (1).jpeg' %}" alt="Круизный лайнер">
+        <img src="{% static 'module2/images/image (2).jpeg' %}" alt="Яхты у причала">
+        <img src="{% static 'module2/images/image (3).jpeg' %}" alt="Катер на маршруте">
+      </div>
+      <button class="slider-control prev" id="sliderPrev" type="button" aria-label="Предыдущее изображение">‹</button>
+      <button class="slider-control next" id="sliderNext" type="button" aria-label="Следующее изображение">›</button>
+      <div class="slider-dots" id="sliderDots" aria-hidden="true"></div>
+    </section>
+
+    <section class="applications-area">
+      <div class="section-title">
+        <h2>История заявок</h2>
+        <span class="counter">{{ applications|length }}</span>
+      </div>
+      <div class="applications-list">
+        {% for application in applications %}
+          <article class="application-card">
+            <header>
+              <div>
+                <h3>{{ application.transport }}</h3>
+                <p class="muted">Создана {{ application.created_at|date:"d.m.Y" }}</p>
+              </div>
+              <span class="status {% if application.status == 'Идет обучение' %}progress{% elif application.status == 'Обучение завершено' %}done{% endif %}">{{ application.status }}</span>
+            </header>
+            <div class="meta-grid">
+              <div><span>Дата старта</span>{{ application.start_date|date:"d.m.Y" }}</div>
+              <div><span>Оплата</span>{{ application.payment_method }}</div>
+              <div><span>Комментарий</span>{{ application.comment|default:"Нет" }}</div>
+            </div>
+            {% if application.review_text %}
+              <div class="review-box"><strong>Отзыв</strong><p>{{ application.review_text }}</p></div>
+            {% elif application.status != 'Новая' %}
+              <form class="review-box" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="application_id" value="{{ application.id }}">
+                <label>
+                  Отзыв
+                  {{ review_form.text }}
+                </label>
+                <button class="button secondary" type="submit">Оставить отзыв</button>
+              </form>
+            {% else %}
+              <p class="muted">Отзыв станет доступен после обработки заявки.</p>
+            {% endif %}
+          </article>
+        {% empty %}
+          <div class="empty">Заявок пока нет.</div>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <script src="{% static 'module2/app.js' %}"></script>
+</body>
+</html>

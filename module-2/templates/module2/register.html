@@ -1,0 +1,67 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Регистрация</title>
+  <link rel="stylesheet" href="{% static 'module2/styles.css' %}">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="{% url 'module2:login' %}">
+      <img src="{% static 'module2/assets/boat.png' %}" alt="">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="nav" aria-label="Основная навигация">
+      <a href="{% url 'module2:login' %}">Вход</a>
+      <a class="active" href="{% url 'module2:register' %}">Регистрация</a>
+      <a href="{% url 'module2:admin' %}">Админ</a>
+    </nav>
+  </header>
+
+  <main class="page">
+    <section class="form-surface" aria-labelledby="register-title">
+      <p class="eyebrow">Новый аккаунт</p>
+      <h1 id="register-title">Регистрация</h1>
+      <form method="post" class="form-grid" novalidate>
+        {% csrf_token %}
+        <label>
+          ФИО
+          {{ form.full_name }}
+          <span class="field-error">{{ form.full_name.errors|striptags }}</span>
+        </label>
+        <label>
+          Дата рождения
+          {{ form.birth_date }}
+          <span class="field-error">{{ form.birth_date.errors|striptags }}</span>
+        </label>
+        <label>
+          Телефон
+          {{ form.phone }}
+          <span class="field-error">{{ form.phone.errors|striptags }}</span>
+        </label>
+        <label>
+          E-mail
+          {{ form.email }}
+          <span class="field-error">{{ form.email.errors|striptags }}</span>
+        </label>
+        <label>
+          Логин
+          {{ form.login }}
+          <span class="field-error">{{ form.login.errors|striptags }}</span>
+        </label>
+        <label>
+          Пароль
+          {{ form.password }}
+          <span class="field-error">{{ form.password.errors|striptags }}</span>
+        </label>
+        <p class="form-message full">{{ form.non_field_errors|striptags }}</p>
+        <button class="button primary full" type="submit">Зарегистрироваться</button>
+      </form>
+      <p class="switch">Уже есть аккаунт? <a href="{% url 'module2:login' %}">Войти</a></p>
+    </section>
+  </main>
+  <script src="{% static 'module2/app.js' %}"></script>
+</body>
+</html>

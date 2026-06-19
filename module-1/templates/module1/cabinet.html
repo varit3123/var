@@ -1,0 +1,83 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Водить.РФ | Личный кабинет</title>
+  <link rel="stylesheet" href="{% static 'module1/styles.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{% url 'module1:cabinet' %}">
+      <span>Водить.РФ</span>
+    </a>
+    <nav class="top-nav" aria-label="Основная навигация">
+      <a href="{% url 'module1:cabinet' %}" class="active">Кабинет</a>
+      <a href="{% url 'module1:request' %}">Новая заявка</a>
+      <a href="{% url 'module1:logout' %}">Выйти</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    {% for message in messages %}
+      <p class="form-message success">{{ message }}</p>
+    {% endfor %}
+    <section class="dashboard-head">
+      <div>
+        <p class="eyebrow">Личный кабинет</p>
+        <h1>{{ request.user.profile.full_name }}, ваши заявки</h1>
+        <p class="muted">Здесь отображаются все отправленные заявки и отзывы по пройденным услугам.</p>
+      </div>
+      <a class="button primary" href="{% url 'module1:request' %}">Оформить заявку</a>
+    </section>
+
+    <section class="content-grid">
+      <div>
+        <h2>Мои заявки</h2>
+        <div class="cards-list">
+          {% for application in applications %}
+            <article class="app-card">
+              <header>
+                <div>
+                  <h3>{{ application.transport }}</h3>
+                  <p class="muted">Заявка от {{ application.created_at|date:"d.m.Y" }}</p>
+                </div>
+                <span class="status {% if application.status == 'Идет обучение' %}progress{% elif application.status == 'Обучение завершено' %}done{% endif %}">{{ application.status }}</span>
+              </header>
+              <div class="meta-grid">
+                <div><span>Старт</span>{{ application.start_date|date:"d.m.Y" }}</div>
+                <div><span>Оплата</span>{{ application.payment_method }}</div>
+                <div><span>Комментарий</span>{{ application.comment|default:"Нет" }}</div>
+              </div>
+              {% if application.review_text %}
+                <div class="review-form"><strong>Отзыв:</strong><p>{{ application.review_text }}</p></div>
+              {% elif application.status == 'Обучение завершено' %}
+                <form class="review-form" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="application_id" value="{{ application.id }}">
+                  <label>
+                    Отзыв об услуге
+                    {{ review_form.text }}
+                  </label>
+                  <button class="button ghost" type="submit">Сохранить отзыв</button>
+                </form>
+              {% else %}
+                <p class="muted">Отзыв можно оставить после завершения обучения.</p>
+              {% endif %}
+            </article>
+          {% empty %}
+            <div class="empty">Вы еще не отправляли заявки на обучение.</div>
+          {% endfor %}
+        </div>
+      </div>
+      <aside class="info-box">
+        <h2>Статусы</h2>
+        <p><strong>Новая</strong> — заявка ожидает проверки администратором.</p>
+        <p><strong>Идет обучение</strong> — курс согласован и проходит по расписанию.</p>
+        <p><strong>Обучение завершено</strong> — можно оставить итоговый отзыв.</p>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>
