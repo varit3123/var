@@ -31,7 +31,6 @@ py manage.py runserver 0.0.0.0:8000
 
 ```bash
 cd module-1
-py -m pip install -r requirements.txt
 py manage.py migrate
 py manage.py seed_demo
 py manage.py runserver 127.0.0.1:8001
